@@ -1,0 +1,41 @@
+---
+- name: GPU Node Preinstaller
+  hosts: gpu
+  tasks:
+
+# Configuration Nvidia Docker Service     
+  - name: remove packages
+    yum:
+      name:
+        - nvidia-docker
+        - nvidia-docker2
+      state: absent
+      autoremove: yes
+      
+  - name: add repo
+    get_url:
+      url: "https://nvidia.github.io/nvidia-docker/centos7/nvidia-docker.repo"
+      dest: /etc/yum.repos.d/nvidia-docker.repo
+      mode: 0644
+      owner: root
+      group: root
+    
+  - name: install packages
+    yum:
+      name: nvidia-container-runtime
+      state: present
+      update_cache: yes
+    notify: restart docker
+    
+  - name: Make nvidia docker default
+    copy:
+      src: ./files/gpu-daemon.json
+      dest: /etc/docker/daemon.json
+    notify: restart docker
+    
+  handlers:
+  - name: restart docker
+    systemd:
+      name: docker
+      daemon_reload: yes
+      state: restarted
