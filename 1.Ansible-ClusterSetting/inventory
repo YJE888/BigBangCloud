@@ -1,0 +1,22 @@
+[all]
+master  ansible_host={IP}
+worker1 ansible_host=
+worker2 ansible_host=
+worker3 ansible_host=
+gpu ansible_host=
+
+[gpu]
+gpu ansible_host=
+
+[all:vars]
+ansible_ssh_user={ID}
+ansible_ssh_pass={PASSWORD}
+
+## Please check variable  
+docker_package_version=docker-ce-20.10.16-3.ce
+kubernetes_package_version=1.23-0
+install_package=true
+
+[gpu:vars]
+ansible_ssh_user={ID}
+ansible_ssh_pass={PASSWORD}
