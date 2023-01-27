@@ -1,0 +1,13 @@
+[servers]
+mon ansible_host={IP}
+osd-1 ansible_host={IP}
+osd-2 ansible_host={IP}
+osd-3 ansible_host={IP}
+
+[servers:vars]
+ansible_user={ID}
+ansible_ssh_pass={PASSWORD}
+
+## Please check variable
+docker_package_version=docker-ce-20.10.16-3.el7
+install_package=true
