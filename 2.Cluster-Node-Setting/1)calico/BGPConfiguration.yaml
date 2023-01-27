@@ -1,0 +1,14 @@
+apiVersion: projectcalico.org/v3
+kind: BGPConfiguration
+metadata:
+  name: default
+spec:
+  logSeverityScreen: Info
+  nodeToNodeMeshEnabled: true
+  asNumber: 64512
+  serviceClusterIPs:
+  - cidr: {Network IP}/{BIP} #cat /etc/kubernetes/manifests/kube-apiserver.yaml | grep service-cluster-ip-range
+  serviceExternalIPs:
+  - cidr: {Network IP}/{BIT}
+  serviceLoadBalancerIPs:
+  - cidr: {Network IP}/{BIT}
