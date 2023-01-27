@@ -18,11 +18,12 @@ vi calico.yaml
 ```
 ### 2. BGPConfiguration.yaml 배포
   - *serviceClusterIPs 확인 및 ExternalIP, LBIP 기입*
+  - `cat /etc/kubernetes/manifests/kube-apiserver.yaml | grep service-cluster-ip-range`
 ```
 vi BGPConfiguration.yaml
 kubectl apply -f BGPConfiguration.yaml
 ```
-### 1. Global BGP Peer 설정
+### 3. Global BGP Peer 설정
   - *BGPPeer.yaml 에서 peerIP 수정*
 ```
 vi BGPPeer.yaml
