@@ -51,3 +51,42 @@ export ANSIBLE_HOST_KEY_CHECKTING=False
 
 ### 4) GPU Driver 설치 Ansible-Playbook 관련
 참고 (https://galaxy.ansible.com/nvidia/nvidia_driver)
+*ansible-galaxy 를 사용하여 다운로드*
+```
+ansible-galaxy install nvidia.nvida_driver
+```
+&nbsp;
+*설치된 경로로 이동 후 인벤토리 수정*
+```
+vi /root/.ansible/roles/nvidia.nvida_driver/tests/inventory
+[gpu]
+gpu ansible_hosts={IP}
+
+[gpu:vars]
+ansible_ssh_user={ID}
+ansible_ssh_pass={PASSWORD}
+```
+
+&nbsp;
+*playbook 실행 및 GPU Driver 설치*
+```
+cd /root/.ansible/roles/nvidia.nvidia_driver/
+ansible-playbook -i tests/inventory.yml tests/playbook.yml
+
+# GPU Driver 설치 후, ansible-playbook으로 gpu-preinstall.yaml을 실행하여 nvidia-docker2, daemon.json 재설정
+ansible-playbook -i inventory gpu-preinstall.yaml
+```
+&nbsp;
+### 5) CEPH Preinstall 실행
+*CEPH Cluster를 구성할 노드들의 inventory, hosts 파일 수정*</br>
+  - ceph 디렉토리의 inventory, hosts 파일에 ceph 클러스터의 ip, hosts명에 맞게 정보 수정</br>
+
+&nbsp;
+*ansible-playbook 실행*
+```
+cd ceph
+ansible-playbook -i inventory ceph-preinstall.yaml
+```
+
+
+
