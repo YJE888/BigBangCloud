@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: metallb-system
+  name: config
+data:
+  # Enable BGP for MetalLB, but dont add BGP 
+  # neighbors, AS number etc as Calico has the node
+  # BGP session with the leaf/tor switches. 
+  # This works as MetalLB assigns the LB IP address
+  # and Calico advertises it. See following for details;
+  # https://github.com/projectcalico/confd/pull/422
+  # Address range must match Calico address range 
+  # for serviceLoadBalancerIPs:cidr in Calico BGPConfiguration
+  config: |
+    address-pools:
+    - name: default
+      avoid-buggy-ips: true
+      protocol: bgp
+      addresses:
+      - {BGP 광고대역 IP}
