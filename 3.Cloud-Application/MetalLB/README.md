@@ -21,4 +21,4 @@ MetalLB는 Speaker 배포 필요없음</br>
 LoadBalancer IP를 할당해주는 Controller만 필요함
 
 ### Error
-  - MetalLB-Controller log에 rbac 관련 에러가 뜨면 ClusterRole에 Configmap 관련 내용 추가 할 것
+  - MetalLB-Controller log에 rbac 관련 에러가 뜨면 metallb-install.yaml의 ClusterRole에 Configmap 관련 내용 추가 할 것
