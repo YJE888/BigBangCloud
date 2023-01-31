@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: monitoring
+  labels:
+    app: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      name: grafana
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - name: grafana
+          containerPort: 3000
+        resources:
+          limits:
+            cpu: 500m
+            memory: 1Gi
+        env:
+        - name: GF_AUTH_BASIC_ENABLED
+          value: "true"
+        - name: GF_SECURITY_ADMIN_USER
+          valueFrom:
+            secretKeyRef:
+              name: grafana
+              key: admin-username
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: grafana
+              key: admin-password
+        - name: GF_AUTH_ANONYMOUS_ENABLED
+          value: "false"
+        - name: GF_SECURITY_ALLOW_EMBEDDING
+          value: "true"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+        volumeMounts:
+        - name: grafana-persistent-storage
+          mountPath: /var/lib/grafana
+      affinity:       # 노드에 grafana전용 라벨 붙이고 affinity 사용하기
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - grafana    
+      volumes:
+      - name: grafana-persistent-storage    # CephFS가 설치되고 해당 pvc가 배포되어있어야 사용가능
+        persistentVolumeClaim:
+          claimName: grafana-pvc
