@@ -5,7 +5,7 @@
 kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/bundle.yaml
 ```
 
-#### dcgm-exporter는 helm 으로 배포하며, 배포 전에 values 파일을 가져와서 별도의 value 파일을 만들어서 배포
+#### dcgm-exporter는 helm 으로 배포하며, 배포 전에 values 파일을 가져와서 별도의 value 파일을 만들어서 배포(taint, toleration)
 ```
 helm repo add gpu-helm-charts https://nvidia.github.io/dcgm-exporter/helm-charts
 
