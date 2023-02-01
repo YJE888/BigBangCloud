@@ -1,0 +1,18 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: pushgateway-service
+  labels:
+    app: pushgateway
+    env: prod
+spec:
+  selector:
+    app: pushgateway
+    env: prod
+  ports:
+  - name: pushgateway
+    protocol: TCP
+    port: 9091
+    targetPort: 9091
+    nodePort: 30091
+  type: NodePort    # LoadBalancer Type으로 테스트필요
