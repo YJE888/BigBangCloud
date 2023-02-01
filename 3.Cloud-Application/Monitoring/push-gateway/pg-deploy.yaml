@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pushgateway-deployment
+  labels:
+    app: pushgateway
+    env: prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pushgateway
+      env: prod
+  template:
+    metadata:
+      labels:
+        app: pushgateway
+        env: prod
+    spec:
+      containers:
+      - name: pushgateway-container
+        image: prom/pushgateway
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "200m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        ports:
+        - containerPort: 9091
