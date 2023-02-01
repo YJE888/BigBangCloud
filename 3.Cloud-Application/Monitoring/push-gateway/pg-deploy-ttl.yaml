@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pushgateway-deployment
+  labels:
+    app: pushgateway
+    env: prod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pushgateway
+      env: prod
+  template:
+    metadata:
+      labels:
+        app: pushgateway
+        env: prod
+    spec:
+      nodeName: worker2
+      containers:
+      - name: pushgateway-container
+        image: dmathai/prom-pushgateway-ttl:latest
+        args: ["--metric.timetolive=60s"]
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "200m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+        ports:
+        - containerPort: 9091
+# TTL적용 버전 (TTL이 지난 pushgateway 내부 메트릭캐시들이 삭제됨 
