@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tensor-deploytestt
+  labels:
+    app: test
+  namespace: stylistbw
+spec:
+  selector:
+    matchLabels:
+      app: test
+  template:
+    metadata:
+      labels:
+        app: test
+    spec:
+      containers:
+      - image: ehost-repo.xyz/research/tensorflow:2.6.0-11.2-8
+        name: tensor
+        ports:
+        - containerPort: 8888
+        volumeMounts:
+        - mountPath: "/home/git"
+          name: git
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+      initContainers:
+      - name: git-cloner
+        image: alpine/git
+        args:
+          - clone
+          - --single-branch
+          - --
+          - https://github.com/kubernetes/git-sync.git
+          - /home/git
+        volumeMounts:
+        - name: git
+          mountPath: /home/git
+        securityContext:
+          runAsUser: 0
+      imagePullSecrets:
+      - name: ehost-repo.xyz
+      volumes:
+      - name: git
+        emptyDir: {}
