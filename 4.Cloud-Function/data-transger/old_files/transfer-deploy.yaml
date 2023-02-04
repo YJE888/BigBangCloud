@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: vol-upload
+  name: vol-upload
+  namespace: sbw210
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vol-upload
+  template:
+    metadata:
+      labels:
+        app: vol-upload
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 10
+            preference:
+              matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - data-transfer
+      containers:
+      - command:
+        - sleep
+        - infinity
+        image: ubuntu
+        name: vol-upload
+        resources:
+          limits:
+            cpu: 100m
+            memory: 200Mi
+        volumeMounts:
+        - mountPath: /data/upload
+          name: myvol
+        - mountPath: /ext-volume
+          name: nfsvol
+        - mountPath: /etc/localtime
+          name: timezone
+          readOnly: true
+      tolerations:
+      - effect: NoSchedule
+        key: role
+        operator: Equal
+        value: data-transfer
+      volumes:
+      - name: myvol
+        persistentVolumeClaim:
+          claimName: vol
+          readOnly: false
+      - name: nfsvol
+        nfs:
+          path: /ext-volume/sbw210
+          server: 10.10.10.69
+      - hostPath:
+          path: /usr/share/zoneinfo/Asia/Seoul
+        name: timezone
