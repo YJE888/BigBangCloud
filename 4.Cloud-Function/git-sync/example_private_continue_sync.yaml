@@ -4,7 +4,7 @@ metadata:
   labels:
     owner: sec-tester
   name: git-test2
-  namespcae: stylistbw
+  namespcae: default
 spec:
   replicas: 1
   selector:
@@ -36,11 +36,11 @@ spec:
           mountPath: /home/git
         env:
         - name: GIT_SYNC_REPO
-          value: "https://github.com/sbw210/3-BB_Cloud-Funtion.git" #(Private repo-path-you-want-to-clone)
+          value: "https://github.com/Cloud.git" #(Private repo-path-you-want-to-clone)
         - name: GIT_SYNC_USERNAME
-          value: "sbw210"  ##The username for the repository
+          value: "YJE888"  ##The username for the repository
         - name: GIT_SYNC_PASSWORD
-          value: "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" #(The Personal Access Token for the repository)
+          value: "ghp_..." #(The Personal Access Token for the repository)
         - name: GIT_SYNC_BRANCH
           value: "main" #(repo-branch)
         - name: GIT_SYNC_ROOT #(싱크맞추려면 env 항목 사용할 것)
