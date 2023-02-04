@@ -4,7 +4,7 @@ metadata:
   name: tensor-deploytestt
   labels:
     app: test
-  namespace: stylistbw
+  namespace: default
 spec:
   selector:
     matchLabels:
