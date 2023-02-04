@@ -1,0 +1,85 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test #저장소이름
+  namespace: pupu #ns
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: csi-cephfs-sc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-upload #저장소이름-upload
+  namespace: pupu #ns
+  labels:
+    app: test-upload #저장소이름-upload
+spec:
+  selector:
+    matchLabels:
+      app: test-upload #저장소이름-upload
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: test-upload #저장소이름-upload
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - preference:
+              matchExpressions:
+              - key: role
+                operator: In
+                values:
+                - data-transfer
+            weight: 10
+      tolerations:
+      - effect: NoSchedule
+        key: role
+        operator: Equal
+        value: data-transfer
+      imagePullSecrets:
+      - name: bigbangcloud-repo.co.kr
+      volumes:
+      - name: myvol
+        persistentVolumeClaim:
+          claimName: test #저장소 이름
+          readOnly: false
+      - hostPath:
+          path: /usr/share/zoneinfo/Asia/Seoul
+        name: timezone
+      containers:
+        - name: upload
+          image: bigbangcloud-repo.co.kr/research/sftp:v1
+          args: ["upload_user:test2022:1001:100:upload"] #id(고정):pw(저장소이름2022):uid(고정):gid(고정):upload_dir(고정)
+          ports:
+            - containerPort: 22
+          volumeMounts:
+            - name: myvol
+              mountPath: /home/upload_user
+            - name: timezone
+              mountPath: /etc/localtime
+          securityContext:
+            capabilities:
+              add: ["SYS_ADMIN"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: test-upload #저장소이름-upload
+  name: test-upload #저장소이름-upload
+  namespace: pupu
+spec:
+  ports:
+  - port: 22
+    protocol: TCP
+    targetPort: 22
+  selector:
+    app: test-upload #저장소이름-upload
+  type: NodePort
