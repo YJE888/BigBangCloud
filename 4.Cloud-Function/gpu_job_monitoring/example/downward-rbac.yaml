@@ -1,0 +1,18 @@
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  name: downward-sa
+  namespace: {NS}  #사용자 네임스페이스
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: downward-binding
+subjects:
+- kind: ServiceAccount
+  name: downward-sa
+  namespace: {NS}  #사용자 네임스페이스
+roleRef:
+  kind: ClusterRole
+  name: view   #기본으로 제공되는 view Role
+  apiGroup: rbac.authorization.k8s.io
