@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: bobo
+  namespace: {NS}
+spec:
+  template:
+    spec:
+      containers:
+      - args:
+        - cd /home && python3 test.py
+        command:
+        - /bin/sh
+        - -c
+        image: {URL}/research/jobetes:real
+        name: main
+        resources:
+          limits:
+            memory: 8000Mi
+            cpu: '4'
+            nvidia.com/gpu: '1'
+        volumeMounts:
+        - mountPath: /home/ting
+          name: ting
+      imagePullSecrets:
+      - name: test-repo.co.kr
+      nodeSelector:
+        gpu: '2060'
+      restartPolicy: OnFailure
+      #serviceAccountName: downward-sa
+      tolerations:
+      - effect: NoSchedule
+        key: role
+        operator: Equal
+        value: gpu
+      volumes:
+      - name: ting
+        persistentVolumeClaim:
+          claimName: ting
