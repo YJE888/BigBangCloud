@@ -1,0 +1,11 @@
+[servers]
+worker1 ansible_host=ip
+worker2 ansible_host=ip
+worker3 ansible_host=ip
+gpu	ansible_host=ip
+
+[servers:vars]
+ansible_ssh_user=root
+ansible_ssh_pass=계정정보
+
+## Please check variable
