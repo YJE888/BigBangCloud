@@ -1,0 +1,44 @@
+# push-gateway 사용 시 쓰는 
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: tensor-job
+  namespace: {NS}
+spec:
+  ttlSecondsAfterFinished: 86400 # 24시간 경과후  Job 삭제
+  template:
+    spec:
+      serviceAccountName: downward-sa
+      containers:
+      - name: push
+        image: ehost-repo.xyz/research/tensorflow:2.7.0-11.2-8-v5
+        command: ["/bin/sh", "-c", "/bb_cloud/monitor.sh"]
+        resources:
+          limits:
+            cpu: 200m
+            memory: 200Mi
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef: 
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef: 
+              fieldPath: metadata.namespace
+      - name: main
+        image: ehost-repo.xyz/research/tensorflow:2.7.0-11.2-8-v5
+        command: ["/bin/sh", "-c"]
+        args: 
+        - cd /add && python3 test.py  
+        nodeSelector:
+          gpu: 3060 # GPU종료 선택
+        resources:
+          limits: 
+            cpu: 2000m
+            memory: 8000Mi
+            nvidia.com/gpu: 1
+      imagePullSecrets:
+        - name: ehost-repo.xyz            
+      restartPolicy: Never  #  실패시 재시도하지 않음
+  backoffLimit: 1 # 재시도 횟수
