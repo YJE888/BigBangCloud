@@ -1,0 +1,9 @@
+- name: Docker Image Management
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Remove Image
+      docker_image:
+        state: absent
+        name: "{{ img_name }}"
+        tag: "{{ img_tag }}"
