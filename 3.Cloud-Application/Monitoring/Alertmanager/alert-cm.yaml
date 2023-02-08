@@ -1,0 +1,48 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: alertmanager-config
+  namespace: monitoring
+data:
+  config.yml: |-
+    global:
+      resolve_timeout: 5m
+      slack_api_url: 'https://hooks.slack.com/services/...' # 슬랙에서 생성한 웹훅 URL 등록
+    templates:
+    - '/etc/alertmanager/*.tmpl'
+    route:
+      group_by: ['namespace']
+      group_wait: 10s
+      group_interval: 10s
+      repeat_interval: 86400s
+      receiver: 'slack-notifications' #이메일 사용 시 email_configs 사용
+      routes:
+      - receiver: 'slack-notifications'
+        matchers:
+          - alertname =~ "InfoInhibitor|Watchdog" #??
+    receivers:
+    - name: 'null'
+    - name: 'slack-notifications'
+      slack_configs:
+      - channel: '#alert-manager' # 슬랙에서 경고메세지를 받을 채널 이름 등록
+    inhibit_rules:
+      - source_matchers:
+          - 'severity = critical'
+        target_matchers:
+          - 'severity =~ warning|info'
+        equal:
+          - 'namespace'
+          - 'alertname'
+      - source_matchers:
+          - 'severity = warning'
+        target_matchers:
+          - 'severity = info'
+        equal:
+          - 'namespace'
+          - 'alertname'
+      - source_matchers:
+          - 'alertname = InfoInhibitor'
+        target_matchers:
+          - 'severity = info'
+        equal:
+          - 'namespace'
