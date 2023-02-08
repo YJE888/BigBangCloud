@@ -1,9 +1,12 @@
 ## Alert-Manager 설정 및 Slack 연동
 ### 1) 전제 조건
 - prometheus 설치가 선행되어야됨
-
+- slack 가입 후 알람을 받을 워크스페이스 생성
+  - 테스트 환경 : 워크스페이스(k8s-alert), 채널(#alert-manager)
+  - 웹훅 URL : 채널(#alert-manager)우클릭 > 채널 세부정보 보기 > 통합 > 앱-앱추가 > webhook 검색 - incoming-webhook 설치 > Slack에 추가 > 채널 선택 > **웹후크 URL 획득!**
 ### 2) 설치법
 - *alert-manager configmap 생성*
+  - 파일 내부에서 웹훅 URL 추가 
 ```
 kubectl apply -f alert-cm.yaml
 ```
