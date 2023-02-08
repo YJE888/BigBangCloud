@@ -7,8 +7,10 @@
 ### 2) 설치법
 - *alert-manager configmap 생성*
   - 파일 내부에서 웹훅 URL 추가 
+  - Slack 채널 정보 입력
 ```
-kubectl apply -f alert-cm.yaml
+$ vi alert-cm.yaml
+$ kubectl apply -f alert-cm.yaml
 ```
 - *alert-manager Deployment, Service 생성*
 ```
