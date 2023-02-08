@@ -3,6 +3,7 @@
 
 #### 1) 사용 이유
 - Deployment에 마운트 되어 있는 `Secret`이나 `Configmap`이 변경되었을 경우 Deployment 자동으로 재시작하여 설정 적용
+- 컨피그맵 수정 후 수동으로 Deployment를 롤아웃 할거면 설치하지 않아도 됨
 
 #### 2) 설치
 - 필요한 경우 `Namespace` 변경 후 설치
