@@ -31,7 +31,7 @@
   ```
 3) 배포 및 상태 확인
   ```
-  helm install elasticsearch -f my-values.yaml .
+  helm install elasticsearch -f my-values.yaml . -n monitoring
   curl http://{elastic-ip:port}/_cluster/health?pretty  
   ```
 
@@ -43,5 +43,18 @@
   helm pull fluent/fluentd
   ```
 3) value.yaml 파일 수정
+  ```
+  tar xvfz fluentd-0.3.9.tgz
+  cd fluentd
+  cp values.yaml my-values.yaml
+  vi my-values.yaml
+  ...
   
-4) 배포 및 상태 확인
+  # 상황에 맞게 tolerations 추가
+  ...
+  
+  ```
+4) 배포
+  ```
+  helm install fluentd -f my-values.yaml . -n monitoring
+  ```
