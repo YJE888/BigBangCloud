@@ -4,6 +4,7 @@
 ## Promtail, Loki, Grafana 설치
 
 ### Loki 설치
+*loki 설치 간 nfs를 사용하므로 provisioner 설치가 필요함*
 1. 저장소 추가 및 차트 다운로드
 ```
 helm repo add grafana https://grafana.github.io/helm-charts
@@ -16,7 +17,24 @@ cd loki
 ```
 cp values.yaml my-values.yaml
 vi my-values.yaml
-
+...
+config:
+  table_manager:
+    retention_deletes_enabled: true 
+    retention_period: 336h
+...
+persistence:
+  enabled: true
+  accessModes:
+  - ReadWriteOnce
+  size: 60Gi
+  storageClassName: "nfs-client"
+...
+```
+3. 배포 및 상태 확인
+```
+helm install loki -f my-values.yaml . -n monitoring
+kubectl get pods -n monitoring
 ```
 ### Promtail 설치
 - Promtail은 Loki와 함께 사용할 수 있는 로그 수집기로 Prometheus에서 지원하는 기본 스크래핑 기능과 함께 사용 가능
@@ -32,6 +50,9 @@ cp values.yaml my-values.yaml
 vi my-values.yaml
 ...
 # 상황에 맞게 tolerations 추가
-
+```
+3. 배포 및 상태 확인
+```
+helm install promtail -f my-values.yaml . -n monitoring
 ```
 
