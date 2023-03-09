@@ -36,6 +36,17 @@ persistence:
 helm install loki -f my-values.yaml . -n monitoring
 kubectl get pods -n monitoring
 ```
+*error*
+prometheus에서 pod up이 되지 않으면서 `caller=tcp_transport.go:318 component="memberlist TCPTransport" msg="unknown message type" msgType=G remote={prometheus-pod IP}` 가 뜨면 아래의 설정 변경
+```
+loki:
+  podAnnotations:
+    prometheus.io/port: http-metrics    # 변경 전
+    prometheus.io/scrape: true
+    ---
+    prometheus.io/scrape: "true"        # 변경 후
+    prometheus.io/port: "3100"
+```
 ### Promtail 설치
 - Promtail은 Loki와 함께 사용할 수 있는 로그 수집기로 Prometheus에서 지원하는 기본 스크래핑 기능과 함께 사용 가능
 1. 저장소 추가 및 차트 다운로드
