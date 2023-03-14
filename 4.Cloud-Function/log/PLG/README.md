@@ -36,7 +36,7 @@ persistence:
 helm install loki -f my-values.yaml . -n monitoring
 kubectl get pods -n monitoring
 ```
-*error*
+*error* \
 prometheus에서 pod up이 되지 않으면서 `caller=tcp_transport.go:318 component="memberlist TCPTransport" msg="unknown message type" msgType=G remote={prometheus-pod IP}` 가 뜨면 아래의 설정 변경
 ```
 loki:
@@ -61,9 +61,39 @@ cp values.yaml my-values.yaml
 vi my-values.yaml
 ...
 # 상황에 맞게 tolerations 추가
+defaultVolumes:
+  - name: run
+    hostPath:
+      path: /run/promtail
+  - name: docker-vol
+    hostPath:
+      path: /docker-volume/containers
+  - name: pods
+    hostPath:
+      path: /var/log/pods
+  - name: docker-default
+    hostPath:
+      path: /var/lib/docker/containers
+ defaultVolumeMounts:
+  - name: run
+    mountPath: /run/promtail
+  - name: docker-vol
+    mountPath: /docker-volume/containers
+    readOnly: true
+  - name: pods
+    mountPath: /var/log/pods
+    readOnly: true
+  - name: docker-default
+    mountPath: /var/lib/docker/containers
+    readOnly: true
+config:
+  clients:
+    - url: http://loki-headless:3100/loki/api/v1/push     #loki 서비스 이름과 포트입력
 ```
 3. 배포 및 상태 확인
 ```
 helm install promtail -f my-values.yaml . -n monitoring
 ```
+
+##### Grafana에 데이터 소스 연동 후 로그 확인
 
