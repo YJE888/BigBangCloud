@@ -1,0 +1,41 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {CRONJOB-NAME}
+  namespace: {NS}
+spec:
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - args:
+            - {INPUT COMMAND}
+            command:
+            - /bin/sh
+            - -c
+            image: {IMAGE}
+            name: main
+            resources:
+              limits:
+                memory: 4000Mi
+                cpu: '1'
+                nvidia.com/gpu: '1'
+            volumeMounts:
+            - mountPath: /data/{VOLUME-NAME}
+              name: {VOLUME-NAME}
+          imagePullSecrets:
+          - name: bigbangcloud-repo.co.kr
+          nodeSelector:
+            gpu: '3060'
+          restartPolicy: OnFailure
+          tolerations:
+          - effect: NoSchedule
+            key: role
+            operator: Equal
+            value: gpu
+          volumes:
+          - name: {VOLUME-NAME}
+            persistentVolumeClaim:
+              claimName: {VOLUME-NAME}
+  schedule: 51 09 18 11 *
