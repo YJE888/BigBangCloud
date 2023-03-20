@@ -1,0 +1,50 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: sample  # 스케줄러 이름 (입력값)
+  namespace: devtest  # 사용자 네임스페이스
+spec:
+  ttlSecondsAfterFinished: 86400  #  해당 초이 후 Job삭제 처리(이전에 Log받아두어야함)
+  template:
+    spec:
+      serviceAccountName: downward-sa   # kubeconfig파일에 sa / clusterrolebinding 생성로직추가필요 / clusterrole은 view 사용
+      tolerations:
+      - key: "role"
+        operator: "Equal"
+        value: "gpu"
+        effect: "NoSchedule"
+      containers:
+      - name: push  # GPU메트릭 수집용 컨테이너 (고정값)
+        image: ehost-repo.xyz/pupu/multigpu:v1 # 사용자가 선택한 이미지
+        command: ["/bin/sh", "-c", "/bb_cloud/monitor.sh"]
+        resources:
+          limits:
+            cpu: 200m
+            memory: 200Mi
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef: 
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef: 
+              fieldPath: metadata.namespace
+      - name: main  #실제 서비스 컨테이너 (고정값)
+        image: ehost-repo.xyz/pupu/multigpu:v1  # 사용자가 선택한 이미지
+        command: ["/bin/sh", "-c"]
+        args: 
+        - cd /home && python3 test.py  # cd /절대경로입력  (기본경로 /home), 실행프로그램 + 파일 입력받아야함 (python3 test.py)
+        resources:
+          limits:   
+            cpu: 2000m
+            memory: 8000Mi
+            nvidia.com/gpu: 1   # gpu 개수
+        volumeMounts: # 외부 저장소 사용 시
+        - name: myvol
+          mountPath: /home/vol   # /home은 고정 /vol은 사용자입력값 
+      nodeSelector:
+        gpu: "2080" # 노드 라벨값 매핑. GPU종류선택
+      imagePullSecrets:
+        - name: ehost-repo.xyz            
+      restartPolicy: OnFailure
