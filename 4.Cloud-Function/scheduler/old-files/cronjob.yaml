@@ -1,0 +1,56 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cronjobsample  # 스케줄러 이름 (입력값)
+  namespace: devtest  # 사용자 네임스페이스
+spec:
+  schedule: "31 14 25 8 *"  # 분 시 일 월 요일
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: downward-sa
+          tolerations:
+          - key: "role"
+            operator: "Equal"
+            value: "gpu"
+            effect: "NoSchedule"        
+          containers:
+          - name: push  # GPU메트릭 수집용 컨테이너 (고정값)
+            image: ehost-repo.xyz/pupu/multigpu:v1 # 사용자가 선택한 이미지
+            command: ["/bin/sh", "-c", "/bb_cloud/monitor.sh"]
+            resources:
+              limits:
+                cpu: 200m
+                memory: 200Mi
+            env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef: 
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef: 
+                  fieldPath: metadata.namespace
+          - name: main  #실제 서비스 컨테이너 (고정값)
+            image: ehost-repo.xyz/pupu/multigpu:v1  # 사용자가 선택한 이미지
+            command: ["/bin/sh", "-c"]
+            args: 
+            - cd /home && python3 test.py  # cd /절대경로입력  (기본경로 /home), 실행프로그램 + 파일 입력받아야함 (python3 test.py)
+            resources:
+              limits:   
+                cpu: 2000m
+                memory: 8000Mi
+                nvidia.com/gpu: 1   # gpu 개수
+            volumeMounts: # 외부 저장소 사용 시
+            - name: myvol
+              mountPath: /home/vol   # /home은 고정 /vol은 사용자입력값 
+          nodeSelector:
+            gpu: "2080" # 노드 라벨값 매핑
+          imagePullSecrets:
+            - name: ehost-repo.xyz            
+          volumes:
+          - name: myvol
+            persistentVolumeClaim:
+              claimName: vol 
+          restartPolicy: OnFailure
