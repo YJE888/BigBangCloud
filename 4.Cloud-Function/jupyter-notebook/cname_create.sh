@@ -4,7 +4,10 @@ PNAME=$2
 JUPYTER=${NS}"-"${PNAME}"-jn"
 TENSOR=${NS}"-"${PNAME}"-tb"
 JUPYTERLAB=${NS}"-"${PNAME}"-jl"
-
+ZONEID=$(awk '/^ZONEID/{print $3}' ${CONFIG_FILE})
+DOMAIN=$(awk '/^DOMAIN/{print $3}' ${CONFIG_FILE})
+EMAIL=$(awk '/^Email/{print $3}' ${CONFIG_FILE})
+KEY=$(awk '/^Auth-Key/{print $3}' ${CONFIG_FILE})
 /home/ehostdev/jupyter/cloudflare-dns/cf-dns.sh -d bigbangcloud-client.co.kr -t CNAME -n ${JUPYTER} -c bigbangcloud-client.co.kr -l 1 -x y
 sleep 1
 /home/ehostdev/jupyter/cloudflare-dns/cf-dns.sh -d bigbangcloud-client.co.kr -t CNAME -n ${TENSOR} -c bigbangcloud-client.co.kr -l 1 -x y > /dev/null 2>&1
